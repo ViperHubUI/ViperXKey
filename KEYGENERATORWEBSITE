@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIPER HUB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Black Animation */
+        .animation-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .black-particle {
+            position: absolute;
+            background: #333;
+            border-radius: 50%;
+            animation: blackFloat 15s linear infinite;
+        }
+
+        .black-particle.small {
+            width: 2px;
+            height: 2px;
+        }
+
+        .black-particle.medium {
+            width: 4px;
+            height: 4px;
+        }
+
+        .black-particle.large {
+            width: 6px;
+            height: 6px;
+        }
+
+        @keyframes blackFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0.3;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Black waves */
+        .black-wave {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, #444, transparent);
+            animation: wave 4s linear infinite;
+        }
+
+        @keyframes wave {
+            0% {
+                transform: translateX(-100px);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(100vw);
+                opacity: 0;
+            }
+        }
+
+        /* Floating black dots */
+        .black-dot {
+            position: absolute;
+            background: #222;
+            border-radius: 50%;
+            animation: drift 25s linear infinite;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translateY(100vh) translateX(-50px) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.6;
+            }
+            80% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            z-index: 10;
+            position: relative;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 3rem;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .generate-btn {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 12px 25px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            margin-bottom: 40px;
+            text-transform: none;
+            letter-spacing: normal;
+            font-family: 'Courier New', monospace;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+            background: #333333;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .generate-btn.hidden {
+            display: none;
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .key-output {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            word-break: break-all;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 12px 24px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .copy-btn.copied {
+            background: rgba(0, 255, 0, 0.3);
+            border-color: rgba(0, 255, 0, 0.5);
+        }
+
+        .info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 30px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .generate-btn {
+                font-size: 0.9rem;
+                padding: 14px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-layer" id="animationLayer"></div>
+    
+    <div class="container">
+        <h1>Viper hub</h1>
+        <p class="subtitle">Thank you for using My Scripts</p>
+        
+        <button class="generate-btn" onclick="generateKey()">Create Your Key!</button>
+
+        <div class="result" id="result">
+            <div class="key-output" id="keyOutput"></div>
+            <button class="copy-btn" onclick="copyToClipboard()">Copy Key</button>
+        </div>
+    </div>
+
+    <script>
+        let currentKey = '';
+
+        // Create black animation
+        function createBlackAnimation() {
+            const animationContainer = document.getElementById('animationLayer');
+            
+            // Create floating black particles
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = `black-particle ${['small', 'medium', 'large'][Math.floor(Math.random() * 3)]}`;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                animationContainer.appendChild(particle);
+            }
+
+            // Create black waves
+            setInterval(() => {
+                const wave = document.createElement('div');
+                wave.className = 'black-wave';
+                wave.style.top = Math.random() * 100 + '%';
+                wave.style.width = Math.random() * 200 + 100 + 'px';
+                animationContainer.appendChild(wave);
+
+                setTimeout(() => {
+                    if (wave.parentNode) {
+                        wave.parentNode.removeChild(wave);
+                    }
+                }, 4000);
+            }, 2000);
+
+            // Create floating black dots
+            setInterval(() => {
+                const dot = document.createElement('div');
+                dot.className = 'black-dot';
+                dot.style.left = Math.random() * 100 + '%';
+                dot.style.width = Math.random() * 8 + 3 + 'px';
+                dot.style.height = dot.style.width;
+                dot.style.animationDuration = (Math.random() * 10 + 20) + 's';
+                animationContainer.appendChild(dot);
+
+                setTimeout(() => {
+                    if (dot.parentNode) {
+                        dot.parentNode.removeChild(dot);
+                    }
+                }, 30000);
+            }, 1500);
+        }
+
+        function generateKey() {
+            // Letters for random selection (excluding vowels for cleaner look)
+            const letters = 'BCDFGHJKLMNPQRSTVWXYZ';
+            const numbers = '0123456789';
+            const specialChars = '$@#&*';
+            
+            // Generate key following the pattern: VIPER_L#####L##L#$##L###L#
+            // Where L = Letter, # = Number, $ = Special Character
+            let keyPart = '';
+            
+            // Pattern breakdown for 18 characters after VIPER_:
+            // Position 1: Letter
+            keyPart += letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            // Position 2-6: Numbers
+            for (let i = 0; i < 5; i++) {
+                keyPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            // Position 7: Letter
+            keyPart += letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            // Position 8-9: Numbers
+            for (let i = 0; i < 2; i++) {
+                keyPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            // Position 10: Letter
+            keyPart += letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            // Position 11: Number
+            keyPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            
+            // Position 12: Special Character
+            keyPart += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
+            
+            // Position 13-14: Numbers
+            for (let i = 0; i < 2; i++) {
+                keyPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            // Position 15: Letter
+            keyPart += letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            // Position 16-18: Numbers
+            for (let i = 0; i < 3; i++) {
+                keyPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+            }
+            
+            // Position 19: Letter
+            keyPart += letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            // Position 20: Number
+            keyPart += numbers.charAt(Math.floor(Math.random() * numbers.length));
+
+            // Create the final key: VIPER_ + generated pattern
+            const finalKey = `VIPER_${keyPart}`;
+            
+            currentKey = finalKey;
+            document.getElementById('keyOutput').textContent = finalKey;
+            document.getElementById('result').classList.add('show');
+            
+            // Hide the button after generating key
+            document.querySelector('.generate-btn').classList.add('hidden');
+        }
+
+        function copyToClipboard() {
+            const button = document.querySelector('.copy-btn');
+            
+            navigator.clipboard.writeText(currentKey).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        // Initialize black animation
+        createBlackAnimation();
+    </script>
+</body>
+</html>
